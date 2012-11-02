@@ -1,0 +1,23 @@
+#!/bin/bash
+
+URL=$1
+IS_BUILDING="true"
+
+while [ "$IS_BUILDING" = "true" ]
+do
+	echo "Checking"
+	IS_BUILDING=`wget -q $URL/api/json -O - | grep -o  '"building": *\w*,' | sed 's|"building":||g'|sed 's|,||g'`
+	echo "(IS_BUILDING=$IS_BUILDING)"
+	sleep 1
+done
+
+RESULT=`wget -q $URL/api/json -O - | grep -o  '"result" *: *"\w*"' | sed 's|"||g'| sed 's|result:||g'`
+
+echo "RESULT: $RESULT"
+
+if [ "$RESULT" = "SUCCESS" ]
+then
+    exit 0
+else
+	exit 127
+fi
