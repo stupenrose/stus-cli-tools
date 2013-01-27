@@ -1,0 +1,25 @@
+#!/bin/bash
+
+IP_ADDRESS=""
+
+getIpAddress () {
+	IP_ADDRESS=`ifconfig ppp0 | grep -o "inet addr:[[:digit:]\.]*" | sed 's|inet addr:||g'`	
+}
+
+getIpAddress
+
+if [ -z "$IP_ADDRESS" ]
+then
+	echo "Looks like the VPN is down; bringing it up ...."
+	sudo pon $1
+	while [ -z "$IP_ADDRESS" ]
+	do
+		getIpAddress
+		sleep 1
+		echo "WAITING"
+	done
+	
+	echo "VPN is running.  You are $IP_ADDRESS"
+else
+	echo "Looks like the VPN was already running.  You are $IP_ADDRESS"
+fi
