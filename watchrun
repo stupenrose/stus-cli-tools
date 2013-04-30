@@ -1,0 +1,24 @@
+#!/bin/bash
+CMD="$@"
+
+if [ -z "$CMD" ]
+then
+  echo "Usage: $0 command"
+  exit 1
+fi
+
+MESSAGE_TIMEOUT=1000
+while true; 
+do 
+	inotifywait  -e modify -e attrib -e move -e move_self -e delete -e delete_self -e create . -r  --exclude ".*/target/.*" --exclude ".*\.swp"
+	eval "$CMD"
+	if [ $? == 0 ] 
+	then 
+		RESULT="successful"
+	else
+		RESULT="failed"
+	fi; 
+        NOW_MILLIS=`date +%s%N | cut -b1-13`
+	notify-send -t $MESSAGE_TIMEOUT -c "builds" $RESULT
+done;
+
